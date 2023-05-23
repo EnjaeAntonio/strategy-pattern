@@ -4,14 +4,14 @@ class Program
 {
     static void Main(string[] args)
     {
-        User user1 = new User("John Doe", "john@example.com", 25, false, 19);
-        user1.HandleAccess(); // false
+        User user1 = new User("John Doe", "john@example.com", 25, false, 21);
+        user1.HandleAccess();
 
         Admin testAdmin = new Admin("Enjae Antonio", "enjae@gmail.com", 21, false);
-        testAdmin.HandleAccess(); // True
+        testAdmin.HandleAccess(); 
 
-        Manager testManager = new Manager("Jane Smith", "jane@example.com", 30, false);
-        testManager.HandleAccess(); // True
+        Manager testManager = new Manager("Jane Smith", "jane@example.com", 30, true);
+        testManager.HandleAccess(); 
     }
 }
 
