@@ -5,22 +5,22 @@ class Program
     static void Main(string[] args)
     {
         User user1 = new User("John Doe", "john@example.com", 25, false, 21);
-        user1.HandleAccess();
+        user1.HandleAccess(); // True
 
         Admin testAdmin = new Admin("Enjae Antonio", "enjae@gmail.com", 21, false);
-        testAdmin.HandleAccess(); 
+        testAdmin.HandleAccess(); // True
 
         Manager testManager = new Manager("Jane Smith", "jane@example.com", 30, true);
-        testManager.HandleAccess(); 
+        testManager.HandleAccess(); // False
     }
 }
 
 abstract class Client
 {
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public int? Age { get; set; }
-    public bool AccessDisabled { get; set; }
+    protected string Name { get; set; }
+    protected string Email { get; set; }
+    protected int? Age { get; set; }
+    protected bool AccessDisabled { get; set; }
     protected AccessHandler AccessHandler { get; set; }
 
     protected Client(string name, string email, int? age, bool accessDisabled, AccessHandler accessHandler)
