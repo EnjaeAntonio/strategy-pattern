@@ -3,26 +3,26 @@
     
 }
 
-public abstract class ReceiveRadio : Context
+class ReceiveRadio : Context
 {
     protected ReceiveRadio() { }
 }
 
-public abstract class Hardware : Context
+class Hardware : Context
 {
 
 }
 
-public abstract class Receivers : Hardware
+class Receivers : Hardware
 {
 
 }
-public abstract class Amplifiers : Hardware
+class Amplifiers : Hardware
 {
 
 }
 
-public abstract class Radios : Hardware
+class Radios : Hardware
 {
 
 }
