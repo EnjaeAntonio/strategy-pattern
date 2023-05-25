@@ -3,11 +3,6 @@
     
 }
 
-class ReceiveRadio : Context
-{
-    protected ReceiveRadio() { }
-}
-
 class Hardware : Context
 {
 
@@ -23,6 +18,26 @@ class Amplifiers : Hardware
 }
 
 class Radios : Hardware
+{
+
+}
+
+public interface ReceiveRadio
+{
+
+}
+
+public interface ReceiveLine
+{
+
+}
+
+public interface SetRadio
+{
+
+}
+
+public interface SetLine
 {
 
 }
