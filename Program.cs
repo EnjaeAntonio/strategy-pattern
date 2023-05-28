@@ -35,7 +35,6 @@ public abstract class Hardware
     {
 
     }
-
     public string ReceiveLineInput()
     {
         HandleLines();
