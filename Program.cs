@@ -1,18 +1,34 @@
-﻿public abstract class Client
+﻿
+Client client = new User(20);
+
+CommunityBadge communityBadge = new CommunityBadge(client);
+Console.WriteLine($"Client Community Badge Reputation: {communityBadge.GetReputation()}");
+Console.WriteLine($"Client Community Badge Priveleges: {communityBadge.GetPriveleges()}");
+Console.WriteLine("----------");
+BannedBadge bannedBadge = new BannedBadge(client);
+Console.WriteLine($"Banned Badge Reputation: {bannedBadge.GetReputation()}");
+Console.WriteLine($"Banned Badge Priveleges: {bannedBadge.GetPriveleges()}");
+Console.WriteLine("----------");
+HundredPostsBadge HundredPostsBadge = new HundredPostsBadge(client);
+Console.WriteLine($"Hundred Posts Badge Reputation: {HundredPostsBadge.GetReputation()}");
+Console.WriteLine($"Hundred Posts Badge Priveleges: {HundredPostsBadge.GetPriveleges()}");
+
+public abstract class Client
 {
     public abstract int GetReputation();
-    public abstract void GetPriveleges();
+    public abstract string GetPriveleges();
 }
 
 public class User : Client
 {
     private int _reputation = 0;
-    public override void GetPriveleges()
+    public override string GetPriveleges()
     {
-        void _grantBasicAccess()
+        string _grantBasicAccess()
         {
-            Console.WriteLine("User now has basic access wooh!");
+            return "User now has basic access!";
         }
+        return _grantBasicAccess();
     }
 
     public User(int reputation)
@@ -30,9 +46,10 @@ public class User : Client
 public abstract class BadgeDecorator : Client 
 {
     protected Client _client;
-    public override void GetPriveleges()
+    public override string GetPriveleges()
     {
         _client.GetPriveleges();
+        return "Basic Badge priveleges";
     }
     public override int GetReputation()
     {
@@ -50,12 +67,14 @@ public class CommunityBadge : BadgeDecorator
     {
     }
 
-    public override void GetPriveleges()
+    public override string GetPriveleges()
     {
-        void _grantBasicAccess()
+        _client.GetPriveleges();
+        string _grantBasicAccess()
         {
-
+            return "User now has basic access!";
         }
+        return _grantBasicAccess();
     }
 
 
@@ -70,14 +89,20 @@ public class BannedBadge : BadgeDecorator
     {
     }
 
-    public override void GetPriveleges()
+    public override string GetPriveleges()
     {
-        throw new NotImplementedException();
+        _client.GetPriveleges();
+        string _grantBasicAccess()
+        {
+            return "Access Denied!";
+        }
+        return _grantBasicAccess();
     }
+
 
     public override int GetReputation()
     {
-        throw new NotImplementedException();
+        return _client.GetReputation() * 0;
     }
 }
 public class HundredPostsBadge : BadgeDecorator
@@ -86,13 +111,13 @@ public class HundredPostsBadge : BadgeDecorator
     {
     }
 
-    public override void GetPriveleges()
+    public override string GetPriveleges()
     {
-        throw new NotImplementedException();
+        return _client.GetPriveleges();
     }
 
     public override int GetReputation()
     {
-        throw new NotImplementedException();
+       return _client.GetReputation() + 100;
     }
 }
