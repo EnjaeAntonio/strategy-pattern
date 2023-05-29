@@ -3,11 +3,13 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        // Create a factory for generating clients in a system that does require two-factor authentication
+        ClientFactory trueClientFactory = new ClientFactory(true);
+
         // Create a factory for generating clients in a system that doesn't require two-factor authentication
         ClientFactory falseClientFactory = new ClientFactory(false);
 
-        // Create a factory for generating clients in a system that does require two-factor authentication
-        ClientFactory trueClientFactory = new ClientFactory(true);
+
 
         // Create a standard user client with Two Factor Authentication turned off
         Client userJames = falseClientFactory.CreateClient("James", "Password123", false, false, true);
