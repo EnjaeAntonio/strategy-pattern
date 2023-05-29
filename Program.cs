@@ -1,102 +1,123 @@
-﻿using System;
+﻿
+Client client = new User(20);
 
-class Program
+CommunityBadge communityBadge = new CommunityBadge(client);
+Console.WriteLine($"Client Community Badge Reputation: {communityBadge.GetReputation()}");
+Console.WriteLine($"Client Community Badge Priveleges: {communityBadge.GetPriveleges()}");
+Console.WriteLine("----------");
+BannedBadge bannedBadge = new BannedBadge(client);
+Console.WriteLine($"Banned Badge Reputation: {bannedBadge.GetReputation()}");
+Console.WriteLine($"Banned Badge Priveleges: {bannedBadge.GetPriveleges()}");
+Console.WriteLine("----------");
+HundredPostsBadge HundredPostsBadge = new HundredPostsBadge(client);
+Console.WriteLine($"Hundred Posts Badge Reputation: {HundredPostsBadge.GetReputation()}");
+Console.WriteLine($"Hundred Posts Badge Priveleges: {HundredPostsBadge.GetPriveleges()}");
+
+public abstract class Client
 {
-    static void Main(string[] args)
-    {
-        User user1 = new User("John Doe", "john@example.com", 25, false, 21);
-        user1.HandleAccess();
-
-        Admin testAdmin = new Admin("Enjae Antonio", "enjae@gmail.com", 21, false);
-        testAdmin.HandleAccess(); 
-
-        Manager testManager = new Manager("Jane Smith", "jane@example.com", 30, true);
-        testManager.HandleAccess(); 
-    }
+    public abstract int GetReputation();
+    public abstract string GetPriveleges();
 }
 
-abstract class Client
+public class User : Client
 {
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public int? Age { get; set; }
-    public bool AccessDisabled { get; set; }
-    protected AccessHandler AccessHandler { get; set; }
-
-    protected Client(string name, string email, int? age, bool accessDisabled, AccessHandler accessHandler)
+    private int _reputation = 0;
+    public override string GetPriveleges()
     {
-        Name = name;
-        Email = email;
-        Age = age;
-        AccessDisabled = accessDisabled;
-        AccessHandler = accessHandler;
-    }
-
-    public virtual void HandleAccess()
-    {
-        bool hasAccess = AccessHandler.GetAccess(Age, AccessDisabled);
-        Console.WriteLine($"Access granted: {hasAccess}");
-    }
-}
-
-class User : Client
-{
-    public int Reputation { get; set; }
-
-    public User(string name, string email, int age, bool accessDisabled, int reputation)
-        : base(name, email, age, accessDisabled, new HasReputation())
-    {
-        Reputation = reputation;
-    }
-
-    public override void HandleAccess()
-    {
-        bool hasAccess = AccessHandler.GetAccess(Reputation, AccessDisabled);
-        Console.WriteLine($"Access granted: {hasAccess}");
-    }
-}
-
-class Manager : Client
-{
-    public Manager(string name, string email, int age, bool accessDisabled)
-        : base(name, email, age, accessDisabled, new HasAccessAutomatic())
-    {
-    }
-}
-
-class Admin : Client
-{
-    public Admin(string name, string email, int age, bool accessDisabled)
-        : base(name, email, age, accessDisabled, new HasAccessAutomatic())
-    {
-    }
-}
-
-public interface AccessHandler
-{
-    bool GetAccess(int? reputation = 0, bool accessDisabled = false);
-}
-
-class HasReputation : AccessHandler
-{
-    public bool GetAccess(int? reputation = 0, bool accessDisabled = false)
-    {
-        if(accessDisabled == true || reputation >= 20)
+        string _grantBasicAccess()
         {
-            return true;
+            return "User now has basic access!";
         }
-        return false;
+        return _grantBasicAccess();
     }
+
+    public User(int reputation)
+    {
+        _reputation = reputation;
+    }
+
+    public override int GetReputation()
+    {
+        return _reputation;
+    }
+
 }
 
-class HasAccessAutomatic : AccessHandler
+public abstract class BadgeDecorator : Client 
 {
-    public bool GetAccess(int? reputation = 0, bool accessDisabled = false)
+    protected Client _client;
+    public override string GetPriveleges()
     {
-        if(accessDisabled == false)
+        _client.GetPriveleges();
+        return "Basic Badge priveleges";
+    }
+    public override int GetReputation()
+    {
+        return _client.GetReputation();
+    }
+
+    public BadgeDecorator(Client client)
+    {
+        _client = client;
+    }
+}
+public class CommunityBadge : BadgeDecorator
+{
+    public CommunityBadge(Client client) : base(client)
+    {
+    }
+
+    public override string GetPriveleges()
+    {
+        _client.GetPriveleges();
+        string _grantBasicAccess()
         {
-            return true;
+            return "User now has basic access!";
         }
-        return false;
+        return _grantBasicAccess();
+    }
+
+
+    public override int GetReputation()
+    {
+        return _client.GetReputation() + 5;
+    }
+}
+public class BannedBadge : BadgeDecorator
+{
+    public BannedBadge(Client client) : base(client)
+    {
+    }
+
+    public override string GetPriveleges()
+    {
+        _client.GetPriveleges();
+        string _grantBasicAccess()
+        {
+            return "Access Denied!";
+        }
+        return _grantBasicAccess();
+    }
+
+
+    public override int GetReputation()
+    {
+        return _client.GetReputation() * 0;
+    }
+}
+public class HundredPostsBadge : BadgeDecorator
+{
+    public HundredPostsBadge(Client client) : base(client)
+    {
+    }
+
+    public override string GetPriveleges()
+    {
+        return _client.GetPriveleges();
+    }
+
+    public override int GetReputation()
+    {
+       return _client.GetReputation() + 100;
     }
 }
