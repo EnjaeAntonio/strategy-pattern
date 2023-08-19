@@ -1,102 +1,245 @@
-﻿using System;
+﻿using System.Threading.Channels;
 
-class Program
+Hardware receiver = new Receivers();
+Hardware radio = new Radios();
+Hardware amplifier = new Amplifiers();
+
+receiver.SetRadio(2);
+Console.WriteLine($"Receiver Set Radio: {receiver.ReceiveRadioStation()}");
+
+receiver.SetLine(3);
+Console.WriteLine($"Receiver Set Line: {receiver.ReceiveLineInput()}");
+
+amplifier.SetLine(3);
+Console.WriteLine($"Amplifier Set Line: {amplifier.ReceiveLineInput()}");
+
+amplifier.SetRadio(2);
+Console.WriteLine($"Amplifier Set Line: {amplifier.ReceiveRadioStation()}");
+
+radio.SetLine(3);
+Console.WriteLine($"Radio Bluetooth Set Line: {radio.ReceiveLineInput()}");
+public abstract class Hardware
 {
-    static void Main(string[] args)
+    protected ReceiveRadio ReceiveRadio { get; set; }
+    protected ReceiveLine ReceiveLine { get; set; }
+    protected int _channel = 0;
+    protected int Channel { get { return _channel; } set { _channel = value; } }
+    protected abstract void SwitchRadio();
+    protected abstract void HandleLines();
+    public virtual void SetRadio(int channel)
     {
-        User user1 = new User("John Doe", "john@example.com", 25, false, 21);
-        user1.HandleAccess();
 
-        Admin testAdmin = new Admin("Enjae Antonio", "enjae@gmail.com", 21, false);
-        testAdmin.HandleAccess(); 
+    }
 
-        Manager testManager = new Manager("Jane Smith", "jane@example.com", 30, true);
-        testManager.HandleAccess(); 
+    public virtual void SetLine(int channel)
+    {
+
+    }
+    public string ReceiveLineInput()
+    {
+        HandleLines();
+        return ReceiveLine.SwitchLines();
+    }
+
+    public string ReceiveRadioStation()
+    {
+        SwitchRadio();
+        return ReceiveRadio.SwitchChannels();
     }
 }
-
-abstract class Client
+class Receivers : Hardware
 {
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public int? Age { get; set; }
-    public bool AccessDisabled { get; set; }
-    protected AccessHandler AccessHandler { get; set; }
-
-    protected Client(string name, string email, int? age, bool accessDisabled, AccessHandler accessHandler)
+    public Receivers()
     {
-        Name = name;
-        Email = email;
-        Age = age;
-        AccessDisabled = accessDisabled;
-        AccessHandler = accessHandler;
+
     }
 
-    public virtual void HandleAccess()
+    public override void SetLine(int channel)
     {
-        bool hasAccess = AccessHandler.GetAccess(Age, AccessDisabled);
-        Console.WriteLine($"Access granted: {hasAccess}");
-    }
-}
-
-class User : Client
-{
-    public int Reputation { get; set; }
-
-    public User(string name, string email, int age, bool accessDisabled, int reputation)
-        : base(name, email, age, accessDisabled, new HasReputation())
-    {
-        Reputation = reputation;
+        Channel = channel;
+        HandleLines();
     }
 
-    public override void HandleAccess()
+
+    public override void SetRadio(int channel)
     {
-        bool hasAccess = AccessHandler.GetAccess(Reputation, AccessDisabled);
-        Console.WriteLine($"Access granted: {hasAccess}");
+        Channel = channel;
+        SwitchRadio();
     }
-}
-
-class Manager : Client
-{
-    public Manager(string name, string email, int age, bool accessDisabled)
-        : base(name, email, age, accessDisabled, new HasAccessAutomatic())
+    protected override void SwitchRadio()
     {
-    }
-}
-
-class Admin : Client
-{
-    public Admin(string name, string email, int age, bool accessDisabled)
-        : base(name, email, age, accessDisabled, new HasAccessAutomatic())
-    {
-    }
-}
-
-public interface AccessHandler
-{
-    bool GetAccess(int? reputation = 0, bool accessDisabled = false);
-}
-
-class HasReputation : AccessHandler
-{
-    public bool GetAccess(int? reputation = 0, bool accessDisabled = false)
-    {
-        if(accessDisabled == true || reputation >= 20)
+        if (_channel == 1)
         {
-            return true;
+            ReceiveRadio = new ReceiveAM();
         }
-        return false;
+        else if (_channel == 2)
+        {
+            ReceiveRadio = new ReceiveFM();
+        }
+        else
+        {
+            ReceiveRadio = new ReceiveRadioNone();
+        }
+    }
+
+    protected override void HandleLines()
+    {
+        if(_channel == 1)
+        {
+            ReceiveLine = new ReceiveLineIn();
+        } else if (_channel == 2)
+        {
+            ReceiveLine = new ReceiveMM();
+        } else if (_channel == 3)
+        {
+            ReceiveLine = new ReceiveBluetooth();
+        }else
+        {
+            ReceiveLine  =new ReceiveLineNone();
+        }
     }
 }
 
-class HasAccessAutomatic : AccessHandler
+class Amplifiers : Hardware
 {
-    public bool GetAccess(int? reputation = 0, bool accessDisabled = false)
+    protected override void SwitchRadio()
     {
-        if(accessDisabled == false)
+        ReceiveRadio = new ReceiveRadioNone();
+    }
+    public override void SetLine(int channel)
+    {
+        Channel = channel;
+        HandleLines();
+    }
+    protected override void HandleLines()
+    {
+        if (_channel == 1)
         {
-            return true;
+            ReceiveLine = new ReceiveLineIn();
         }
-        return false;
+        else if (_channel == 2)
+        {
+            ReceiveLine = new ReceiveMM();
+        }
+        else if (_channel == 3)
+        {
+            ReceiveLine = new ReceiveBluetooth();
+        }
+        else
+        {
+            ReceiveLine = new ReceiveLineNone();
+        }
+    }
+}
+
+class Radios : Hardware
+{
+
+    public Radios()
+    {
+
+    }
+
+    public override void SetRadio(int channel)
+    {
+        Channel = channel;
+        SwitchRadio();
+    }
+
+    protected override void SwitchRadio()
+    {
+        if (_channel == 1)
+        {
+            ReceiveRadio = new ReceiveAM();
+        }
+        else if (_channel == 2)
+        {
+            ReceiveRadio = new ReceiveFM();
+        }
+        else
+        {
+            ReceiveRadio = new ReceiveRadioNone();
+        }
+    }
+
+    public override void SetLine(int channel)
+    {
+        ReceiveLine = new ReceiveLineNone();
+    }
+
+    protected override void HandleLines()
+    {
+        ReceiveLine = new ReceiveLineNone();
+    }
+}
+
+
+
+public interface ReceiveRadio
+{
+    string SwitchChannels();
+}
+
+class ReceiveFM : ReceiveRadio
+{
+    public string SwitchChannels()
+    {
+        return "This is the FM Channel";
+    }
+}
+
+class ReceiveAM : ReceiveRadio
+{
+    public string SwitchChannels()
+    {
+        return "This is the AM Channel";
+
+    }
+}
+
+class ReceiveRadioNone : ReceiveRadio
+{
+    public string SwitchChannels()
+    {
+        return "Access Denied";
+
+    }
+}
+
+public interface ReceiveLine
+{
+    string SwitchLines();
+}
+
+class ReceiveLineIn : ReceiveLine
+{
+    public string SwitchLines()
+    {
+        return $"LineIn connected.";
+    }
+}
+
+class ReceiveMM : ReceiveLine
+{
+    public string SwitchLines()
+    {
+        return $"MM connected.";
+
+    }
+}
+
+class ReceiveBluetooth : ReceiveLine
+{
+    public string SwitchLines()
+    {
+        return $"Bluetooth connected.";
+    }
+}
+
+class ReceiveLineNone : ReceiveLine
+{
+    public string SwitchLines()
+    {
+        return $"Access Denied.";
     }
 }
